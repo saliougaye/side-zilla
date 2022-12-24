@@ -45,5 +45,17 @@ var uploadCmd = &cobra.Command{
 
 		fmt.Printf("file: %s\n size: %d", v.Name(), v.Size())
 
+		// TODO check if size is valid with user plan
+
+		// TODO request a presign url to upload
+
+		// TODO upload
+
+		// TODO request a link shortner
+		url := "link"
+
+		// TODO return the link
+
+		fmt.Println(url)
 	},
 }
