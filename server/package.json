@@ -1,0 +1,24 @@
+{
+  "name": "@sidezilla/server",
+  "version": "0.0.1",
+  "description": "Side-zilla server",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "node build/index.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx src/index.ts'",
+    "build": "tsc -W -p tsconfig.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.11.17",
+    "nodemon": "^2.0.20",
+    "tsx": "^3.12.1",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "fastify": "^4.10.2"
+  }
+}
