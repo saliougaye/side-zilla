@@ -12,7 +12,7 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
-		"outDir": "build/"
+		"outDir": "build"
 	},
 	"include": ["src/**/*.ts", "src/env.d.ts", "src/typings.d.ts"],
 	"exclude": ["node_modules"]

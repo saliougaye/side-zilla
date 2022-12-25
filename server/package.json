@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "node build/index.js",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx src/index.ts'",
+    "dev": "nodemon --watch 'src/**/*.ts' --ext ts --exec 'tsx src/index.ts'",
     "build": "tsc -W -p tsconfig.json"
   },
   "keywords": [],
