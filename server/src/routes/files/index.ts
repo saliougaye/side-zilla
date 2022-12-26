@@ -1,8 +1,11 @@
 import { FastifyInstance } from "fastify";
+import createUploadController from "./controllers/upload";
 import createUploadHandler from "./handlers/upload";
 
 const fileRoute = async (fastify: FastifyInstance) => {
-	const handler = createUploadHandler();
+	const handler = createUploadHandler({
+		controller: createUploadController(),
+	});
 
 	fastify.route({
 		method: "POST",
