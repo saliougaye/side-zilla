@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const requiredKeys = [
 	"MINIO_USER",
 	"MINIO_PASSWORD",
@@ -21,7 +25,7 @@ const config = {
 		password: process.env.MINIO_PASSWORD,
 		region: process.env.MINIO_REGION,
 		endpoint: process.env.MINIO_ENDPOINT,
-		port: process.env.MINIO_PORT,
+		port: Number(process.env.MINIO_PORT),
 		fileBucket: process.env.MINIO_FILE_BUCKET,
 	},
 };

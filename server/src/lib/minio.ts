@@ -12,6 +12,7 @@ const createMinioService = (
 		useSSL: ssl,
 		accessKey: user,
 		secretKey: password,
+		pathStyle: true,
 	});
 
 	const getPresignUrl = async (
