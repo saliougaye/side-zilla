@@ -1,4 +1,9 @@
-import { CreateUploadController, UploadInput, UploadOutput } from "./model";
+import {
+	CreateUploadController,
+	UploadController,
+	UploadInput,
+	UploadOutput,
+} from "./model";
 import { createRandomString } from "./utils";
 import path from "path";
 
@@ -7,7 +12,7 @@ const createUploadController: CreateUploadController = ({
 	fileBucket,
 	slugStorage,
 }) => {
-	const uploadRequest = async (input: UploadInput): Promise<UploadOutput> => {
+	const uploadRequest: UploadController["uploadRequest"] = async (input) => {
 		// TODO (future) check size valid for user
 		const filename = createRandomString();
 
@@ -34,8 +39,17 @@ const createUploadController: CreateUploadController = ({
 		};
 	};
 
+	const ackRequest: UploadController["ackRequest"] = async (input) => {
+		const exist = await slugStorage.slugExist(input.slug);
+
+		return {
+			ack: exist,
+		};
+	};
+
 	return {
 		uploadRequest,
+		ackRequest,
 	};
 };
 

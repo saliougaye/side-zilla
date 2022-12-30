@@ -6,6 +6,7 @@ export type CreateUploadController = (deps: {
 
 export interface UploadController {
 	uploadRequest: (input: UploadInput) => Promise<UploadOutput>;
+	ackRequest: (input: AckInput) => Promise<AckOutput>;
 }
 
 export interface FileStorage {
@@ -18,6 +19,7 @@ export interface FileStorage {
 
 export interface SlugStorage {
 	createSlug: (url: string, expireAt: number) => Promise<string>;
+	slugExist: (slug: string) => Promise<boolean>;
 }
 
 export interface UploadInput {
@@ -29,4 +31,12 @@ export interface UploadOutput {
 	slug: string;
 	url: string;
 	expireAt: Date;
+}
+
+export interface AckInput {
+	slug: string;
+}
+
+export interface AckOutput {
+	ack: boolean;
 }

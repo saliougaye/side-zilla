@@ -26,3 +26,14 @@ export const UploadRequestSchema = z.object({
 		}
 	),
 });
+
+export const AckRequestSchema = z.object({
+	body: z.object({
+		slug: z
+			.string({
+				required_error: "slug property is required",
+				invalid_type_error: "slug must be a string",
+			})
+			.min(1),
+	}),
+});

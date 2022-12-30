@@ -2,7 +2,7 @@ import { createErrorResponse } from "common/error-response";
 import { validateRequestSchema } from "common/validation";
 import { RouteHandlerMethod } from "fastify";
 import { CreateUploadHandlerDeps } from "./model";
-import { UploadRequestSchema } from "./schema";
+import { AckRequestSchema, UploadRequestSchema } from "./schema";
 
 const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 	const upload: RouteHandlerMethod = async (req, reply) => {
@@ -20,17 +20,26 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 				expiration: result.expireAt,
 			});
 		} catch (error) {
-			console.log(error);
 			const { statusCode, body } = createErrorResponse(error);
 
 			reply.code(statusCode).send(body);
 		}
 	};
 
-	const ack: RouteHandlerMethod = (req, reply) => {
-		reply.code(200).send({
-			url: "",
-		});
+	const ack: RouteHandlerMethod = async (req, reply) => {
+		try {
+			const { body } = await validateRequestSchema(req, AckRequestSchema);
+
+			const result = await controller.ackRequest({
+				slug: body.slug,
+			});
+
+			reply.code(result.ack ? 204 : 404).send();
+		} catch (error) {
+			const { statusCode, body } = createErrorResponse(error);
+
+			reply.code(statusCode).send(body);
+		}
 	};
 
 	return {

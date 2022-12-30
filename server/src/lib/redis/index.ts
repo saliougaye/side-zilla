@@ -11,8 +11,15 @@ const createRedisService = () => {
 		return slug;
 	};
 
+	const slugExist = async (slug: string) => {
+		const entity = await slugRepository.fetch(slug);
+
+		return entity.url != null;
+	};
+
 	return {
 		createSlug,
+		slugExist,
 	};
 };
 
