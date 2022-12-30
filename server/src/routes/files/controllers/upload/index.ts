@@ -1,29 +1,36 @@
 import { CreateUploadController, UploadInput, UploadOutput } from "./model";
-import { createSlug } from "./utils";
+import { createRandomString } from "./utils";
+import path from "path";
 
 const createUploadController: CreateUploadController = ({
-	storage,
+	fileStorage,
 	fileBucket,
+	slugStorage,
 }) => {
 	const uploadRequest = async (input: UploadInput): Promise<UploadOutput> => {
 		// TODO (future) check size valid for user
+		const filename = createRandomString();
 
-		// TODO create a presign url with expiration
-		const slug = createSlug();
 		// TODO (future) calculate expiration depens on user
-		const expire = 60 * 60;
+		const expireAt = new Date();
+		expireAt.setHours(new Date().getHours() + 1);
 
-		// FIXME change path type
-		const url = await storage.getPresignUrl(
+		// TODO (future) change path type
+		const url = await fileStorage.getPresignUrl(
 			fileBucket,
-			`${slug}_${input.filename}`,
-			expire
+			`${filename}${path.extname(input.filename)}`,
+			(expireAt.getHours() - 1) * 60 * 60
+		);
+
+		const slug = await slugStorage.createSlug(
+			url,
+			(expireAt.getHours() - 1) * 60 * 60
 		);
 
 		return {
-			slug: createSlug(),
+			slug,
 			url,
-			expire: expire,
+			expireAt,
 		};
 	};
 

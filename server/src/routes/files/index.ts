@@ -1,6 +1,7 @@
 import config from "config";
 import { FastifyInstance } from "fastify";
 import createMinioService from "lib/minio";
+import createRedisService from "lib/redis";
 import createUploadController from "./controllers/upload";
 import createUploadHandler from "./handlers/upload";
 
@@ -8,13 +9,14 @@ const fileRoute = async (fastify: FastifyInstance) => {
 	const handler = createUploadHandler({
 		controller: createUploadController({
 			fileBucket: config.minio.fileBucket,
-			storage: createMinioService(
+			fileStorage: createMinioService(
 				config.minio.endpoint,
 				config.minio.user,
 				config.minio.password,
 				config.minio.port,
 				false
 			),
+			slugStorage: createRedisService(),
 		}),
 	});
 

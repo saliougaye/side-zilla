@@ -9,6 +9,7 @@ const requiredKeys = [
 	"MINIO_ENDPOINT",
 	"MINIO_PORT",
 	"MINIO_FILE_BUCKET",
+	"REDIS_URL",
 ];
 
 requiredKeys.forEach((el) => {
@@ -27,6 +28,9 @@ const config = {
 		endpoint: process.env.MINIO_ENDPOINT,
 		port: Number(process.env.MINIO_PORT),
 		fileBucket: process.env.MINIO_FILE_BUCKET,
+	},
+	redis: {
+		url: process.env.REDIS_URL,
 	},
 };
 

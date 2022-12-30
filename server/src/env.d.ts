@@ -8,5 +8,6 @@ namespace NodeJS {
 		MINIO_ENDPOINT: string;
 		MINIO_PORT: number;
 		MINIO_FILE_BUCKET: string;
+		REDIS_URL: string;
 	}
 }

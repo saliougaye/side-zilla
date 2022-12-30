@@ -25,3 +25,8 @@ Plans:
   - file valid for 1 month
     - Future
       - Crypted
+
+## Infos
+
+[Redis Stack](https://redis.io/docs/stack/)
+[Redis Stack Docker](https://redis.io/docs/stack/get-started/install/docker/)

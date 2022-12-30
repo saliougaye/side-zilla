@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 
-export const createSlug = () => {
+export const createRandomString = () => {
+	// FIXME update with some random function
 	return randomUUID();
 };

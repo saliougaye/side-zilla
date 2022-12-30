@@ -17,7 +17,7 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 			reply.code(200).send({
 				id: result.slug,
 				uploadUrl: result.url,
-				expiration: result.expire,
+				expiration: result.expireAt,
 			});
 		} catch (error) {
 			console.log(error);
