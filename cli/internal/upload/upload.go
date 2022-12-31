@@ -7,86 +7,67 @@ import (
 	"fmt"
 	"mime/multipart"
 	"os"
-	"time"
 
 	"github.com/saliougaye/side-zilla/internal"
-	"github.com/saliougaye/side-zilla/internal/utils"
+	"github.com/saliougaye/side-zilla/internal/model"
 )
 
-var (
-	client                   = newUploadHttpClient()
-	maxSize                  = int64(5242880)
-	errFileNotExist          = errors.New("file not exist")
-	errPathIsADir            = errors.New("path is a directory")
-	errSizeExceed            = errors.New("file to big")
-	errFailedToRequestUpload = errors.New("failed to upload the file (Code 0001)")
-	errFailedToRequestAck    = errors.New("failed to upload the file (Code 0002)")
-	errFailedToUpload        = errors.New("failed to upload the file (Code 0003)")
-)
-
-type UploadResponse struct {
-	Id       string    `json:"id"`
-	Url      string    `json:"uploadUrl"`
-	ExpireAt time.Time `json:"expiration"`
+type UploadCommand struct {
+	client  model.UploadHttpClient
+	maxSize int64
 }
 
-type UploadResult struct {
-	Url      string
-	ExpireAt time.Time
+func NewUploadCommand(client model.UploadHttpClient, maxSize int64) *UploadCommand {
+	return &UploadCommand{
+		client:  client,
+		maxSize: maxSize,
+	}
 }
 
-func Run(filepath string) (*UploadResult, error) {
+func (u *UploadCommand) Run(filepath string) (*model.UploadResult, error) {
 
 	fileInfo, err := os.Stat(filepath)
 
 	if err != nil {
-		return nil, errFileNotExist
+		return nil, model.ErrFileNotExist
 	}
 
 	if fileInfo.IsDir() {
-		return nil, errPathIsADir
+		return nil, model.ErrPathIsADir
 	}
 
-	// FIXME check size based on user plan
-	if fileInfo.Size() > maxSize {
-		return nil, errSizeExceed
+	if fileInfo.Size() > u.maxSize {
+		return nil, model.ErrSizeExceed
 	}
 
-	uploadResponse, err := getPresignUrl(fileInfo.Size(), fileInfo.Name())
+	uploadResponse, err := u.getPresignUrl(fileInfo.Size(), fileInfo.Name())
 
 	if err != nil {
-		return nil, errFailedToRequestUpload
+		return nil, model.ErrFailedToRequestUpload
 	}
 
-	// TODO upload
-	err = upload(filepath, uploadResponse.Url)
+	err = u.upload(filepath, uploadResponse.Url)
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, errFailedToUpload
+		return nil, model.ErrFailedToUpload
 	}
 
-	err = ackRequest(uploadResponse.Id)
+	err = u.ackRequest(uploadResponse.Id)
 
 	if err != nil {
-		return nil, errFailedToRequestAck
+		return nil, model.ErrFailedToRequestAck
 	}
 
-	return &UploadResult{
+	return &model.UploadResult{
 		Url:      fmt.Sprintf("%s/%s", internal.ShortnerBaseUrl, uploadResponse.Id),
 		ExpireAt: uploadResponse.ExpireAt,
 	}, nil
 }
 
-func newUploadHttpClient() *utils.HttpClient {
-	client := utils.NewHttpClient(internal.UploadBaseUrl)
+func (u *UploadCommand) getPresignUrl(size int64, filename string) (*model.UploadResponse, error) {
 
-	return client
-}
-
-func getPresignUrl(size int64, filename string) (*UploadResponse, error) {
-
-	resp, err := client.Post("/file/upload", map[string]interface{}{
+	resp, err := u.client.Post("/file/upload", map[string]interface{}{
 		"size":     size,
 		"filename": filename,
 	})
@@ -96,10 +77,10 @@ func getPresignUrl(size int64, filename string) (*UploadResponse, error) {
 	}
 
 	if resp.StatusCode >= 400 {
-		return nil, errFailedToUpload
+		return nil, model.ErrFailedToUpload
 	}
 
-	var uploadResponse UploadResponse
+	var uploadResponse model.UploadResponse
 	body := resp.Body
 
 	if err := json.Unmarshal([]byte(body), &uploadResponse); err != nil {
@@ -110,8 +91,8 @@ func getPresignUrl(size int64, filename string) (*UploadResponse, error) {
 
 }
 
-func ackRequest(id string) error {
-	resp, err := client.Post("/file/ack", map[string]interface{}{
+func (u *UploadCommand) ackRequest(id string) error {
+	resp, err := u.client.Post("/file/ack", map[string]interface{}{
 		"slug": id,
 	})
 
@@ -126,7 +107,7 @@ func ackRequest(id string) error {
 	return nil
 }
 
-func upload(filepath, url string) error {
+func (u *UploadCommand) upload(filepath, url string) error {
 
 	file, err := os.Open(filepath)
 
@@ -140,7 +121,7 @@ func upload(filepath, url string) error {
 
 	multipart.NewWriter(body)
 
-	result, err := client.PutFileWithPresignUrl(url, body)
+	result, err := u.client.PutFileWithPresignUrl(url, body)
 
 	if err != nil {
 		return err

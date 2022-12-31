@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/saliougaye/side-zilla/internal"
 	"github.com/saliougaye/side-zilla/internal/upload"
 	"github.com/saliougaye/side-zilla/internal/utils"
 	"github.com/spf13/cobra"
@@ -33,7 +34,11 @@ var uploadCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		filepath := args[0]
 
-		l, err := upload.Run(filepath)
+		client := utils.NewHttpClient(internal.UploadBaseUrl)
+		// FIXME check size based on user plan
+		command := upload.NewUploadCommand(client, 5242880)
+
+		l, err := command.Run(filepath)
 
 		if err != nil {
 			fmt.Println(err.Error())
