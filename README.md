@@ -30,3 +30,4 @@ Plans:
 
 [Redis Stack](https://redis.io/docs/stack/)
 [Redis Stack Docker](https://redis.io/docs/stack/get-started/install/docker/)
+[redis-om](https://github.com/redis/redis-om-node)

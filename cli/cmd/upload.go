@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/saliougaye/side-zilla/internal/upload"
+	"github.com/saliougaye/side-zilla/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -29,33 +31,29 @@ var uploadCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		filepath := args[0]
 
-		v, err := os.Stat(args[0])
+		l, err := upload.Run(filepath)
 
 		if err != nil {
-
 			fmt.Println(err.Error())
 			os.Exit(1)
+			return
 		}
+		utils.PrintTable(
+			[]string{
+				"Download Url",
+				"Expire At",
+			},
+			[][]string{
+				{
+					l.Url,
+					l.ExpireAt.String(),
+				},
+			},
+		)
 
-		if v.IsDir() {
-			fmt.Println(errors.New("cannot upload a directory").Error())
-			os.Exit(1)
-		}
+		os.Exit(0)
 
-		fmt.Printf("file: %s\n size: %d", v.Name(), v.Size())
-
-		// TODO check if size is valid with user plan
-
-		// TODO request a presign url to upload
-
-		// TODO upload
-
-		// TODO request a link shortner
-		url := "link"
-
-		// TODO return the link
-
-		fmt.Println(url)
 	},
 }

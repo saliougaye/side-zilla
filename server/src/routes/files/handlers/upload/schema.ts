@@ -16,7 +16,7 @@ export const UploadRequestSchema = z.object({
 					required_error: "filename property is required",
 					invalid_type_error: "filename must be a string",
 				})
-				.regex(/^[\w,\s-]+\.[A-Za-z]{3}$/gm, {
+				.regex(/^[\w,\s-]+\.[A-Za-z]{2,4}$/gm, {
 					message: "filename must containe extension",
 				}),
 		},
