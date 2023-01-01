@@ -2,13 +2,11 @@ package upload
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"mime/multipart"
 	"os"
 
-	"github.com/saliougaye/side-zilla/internal"
 	"github.com/saliougaye/side-zilla/internal/model"
 )
 
@@ -53,58 +51,43 @@ func (u *UploadCommand) Run(filepath string) (*model.UploadResult, error) {
 		return nil, model.ErrFailedToUpload
 	}
 
-	err = u.ackRequest(uploadResponse.Id)
+	ackResponse, err := u.ackRequest(uploadResponse.Id)
 
 	if err != nil {
 		return nil, model.ErrFailedToRequestAck
 	}
 
 	return &model.UploadResult{
-		Url:      fmt.Sprintf("%s/%s", internal.ShortnerBaseUrl, uploadResponse.Id),
-		ExpireAt: uploadResponse.ExpireAt,
+		Url:      ackResponse.Url,
+		ExpireAt: ackResponse.ExpireAt,
 	}, nil
 }
 
 func (u *UploadCommand) getPresignUrl(size int64, filename string) (*model.UploadResponse, error) {
 
-	resp, err := u.client.Post("/file/upload", map[string]interface{}{
-		"size":     size,
-		"filename": filename,
+	resp, err := u.client.PostUploadRequest(model.UploadRequest{
+		Size:     size,
+		Filename: filename,
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode >= 400 {
-		return nil, model.ErrFailedToUpload
-	}
-
-	var uploadResponse model.UploadResponse
-	body := resp.Body
-
-	if err := json.Unmarshal([]byte(body), &uploadResponse); err != nil {
-		return nil, err
-	}
-
-	return &uploadResponse, err
+	return resp, nil
 
 }
 
-func (u *UploadCommand) ackRequest(id string) error {
-	resp, err := u.client.Post("/file/ack", map[string]interface{}{
-		"slug": id,
+func (u *UploadCommand) ackRequest(id string) (*model.AckResponse, error) {
+	resp, err := u.client.PostAckRequest(model.AckRequest{
+		Id: id,
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if resp.StatusCode >= 400 {
-		return errors.New("failed to ack request, invalid argument")
-	}
-
-	return nil
+	return resp, nil
 }
 
 func (u *UploadCommand) upload(filepath, url string) error {

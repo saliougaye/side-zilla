@@ -17,6 +17,7 @@ const fileRoute = async (fastify: FastifyInstance) => {
 				false
 			),
 			slugStorage: createRedisService(),
+			shortnerFunctionUrl: config.shortnerFunctionUrl,
 		}),
 	});
 

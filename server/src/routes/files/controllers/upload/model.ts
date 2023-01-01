@@ -1,7 +1,8 @@
 export type CreateUploadController = (deps: {
 	fileStorage: FileStorage;
-	fileBucket: string;
 	slugStorage: SlugStorage;
+	fileBucket: string;
+	shortnerFunctionUrl: string;
 }) => UploadController;
 
 export interface UploadController {
@@ -10,7 +11,12 @@ export interface UploadController {
 }
 
 export interface FileStorage {
-	getPresignUrl: (
+	getPresignUploadUrl: (
+		bucket: string,
+		objectPath: string,
+		expiration: number
+	) => Promise<string>;
+	getPresignDownloadUrl: (
 		bucket: string,
 		objectPath: string,
 		expiration: number
@@ -19,7 +25,8 @@ export interface FileStorage {
 
 export interface SlugStorage {
 	createSlug: (url: string, expireAt: number) => Promise<string>;
-	slugExist: (slug: string) => Promise<boolean>;
+	getValue: (slug: string) => Promise<string | undefined>;
+	setExpiration: (slug: string, expireAt: number) => Promise<void>;
 }
 
 export interface UploadInput {
@@ -30,7 +37,6 @@ export interface UploadInput {
 export interface UploadOutput {
 	slug: string;
 	url: string;
-	expireAt: Date;
 }
 
 export interface AckInput {
@@ -38,5 +44,6 @@ export interface AckInput {
 }
 
 export interface AckOutput {
-	ack: boolean;
+	url: string;
+	expireAt: Date;
 }

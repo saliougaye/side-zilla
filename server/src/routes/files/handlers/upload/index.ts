@@ -17,7 +17,6 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 			reply.code(200).send({
 				id: result.slug,
 				uploadUrl: result.url,
-				expiration: result.expireAt,
 			});
 		} catch (error) {
 			const { statusCode, body } = createErrorResponse(error);
@@ -34,7 +33,10 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 				slug: body.slug,
 			});
 
-			reply.code(result.ack ? 204 : 404).send();
+			reply.code(200).send({
+				url: result.url,
+				expiresAt: result.expireAt,
+			});
 		} catch (error) {
 			const { statusCode, body } = createErrorResponse(error);
 

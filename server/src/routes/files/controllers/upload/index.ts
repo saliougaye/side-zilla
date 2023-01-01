@@ -1,49 +1,61 @@
-import {
-	CreateUploadController,
-	UploadController,
-	UploadInput,
-	UploadOutput,
-} from "./model";
+import { CreateUploadController, UploadController } from "./model";
 import { createRandomString } from "./utils";
 import path from "path";
+import Exception from "common/errors";
 
 const createUploadController: CreateUploadController = ({
 	fileStorage,
 	fileBucket,
 	slugStorage,
+	shortnerFunctionUrl,
 }) => {
 	const uploadRequest: UploadController["uploadRequest"] = async (input) => {
 		// TODO (future) check size valid for user
 		const filename = createRandomString();
 
-		// TODO (future) calculate expiration depens on user
-		const expireAt = new Date();
-		expireAt.setHours(new Date().getHours() + 1);
-
 		// TODO (future) change path type
-		const url = await fileStorage.getPresignUrl(
+		const uploadUrl = await fileStorage.getPresignUploadUrl(
 			fileBucket,
 			`${filename}${path.extname(input.filename)}`,
-			(expireAt.getHours() - 1) * 60 * 60
+			60 * 10 // 10 minutes
+		);
+
+		const downloadUrl = await fileStorage.getPresignDownloadUrl(
+			fileBucket,
+			`${filename}${path.extname(input.filename)}`,
+			60 * 10 // 10 minutes
 		);
 
 		const slug = await slugStorage.createSlug(
-			url,
-			(expireAt.getHours() - 1) * 60 * 60
+			downloadUrl,
+			60 * 10 // 10 minutes
 		);
 
 		return {
 			slug,
-			url,
-			expireAt,
+			url: uploadUrl,
 		};
 	};
 
 	const ackRequest: UploadController["ackRequest"] = async (input) => {
-		const exist = await slugStorage.slugExist(input.slug);
+		const downloadUrl = await slugStorage.getValue(input.slug);
+
+		if (!downloadUrl) {
+			throw new Exception("NOT_FOUND", "file not exist");
+		}
+
+		// TODO (future) calculate expiration depens on user
+		const expireAt = new Date();
+		expireAt.setHours(new Date().getHours() + 1);
+
+		await slugStorage.setExpiration(
+			input.slug,
+			(expireAt.getHours() - 1) * 60 * 60
+		);
 
 		return {
-			ack: exist,
+			url: `${shortnerFunctionUrl}/${input.slug}`,
+			expireAt: expireAt,
 		};
 	};
 

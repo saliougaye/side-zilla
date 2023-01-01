@@ -1,4 +1,5 @@
 import { ZodError } from "zod";
+import Exception from "./errors";
 
 interface ErrorResponse {
 	statusCode: number;
@@ -14,6 +15,15 @@ export const createErrorResponse = (error: unknown): ErrorResponse => {
 			statusCode: 400,
 			body: {
 				message: error.issues[0].message,
+			},
+		};
+	}
+
+	if (error instanceof Exception) {
+		return {
+			statusCode: error.getStatusCode,
+			body: {
+				message: error.getMessage,
 			},
 		};
 	}

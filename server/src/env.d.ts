@@ -9,5 +9,6 @@ namespace NodeJS {
 		MINIO_PORT: number;
 		MINIO_FILE_BUCKET: string;
 		REDIS_URL: string;
+		SHORTNER_FUNCTION: string;
 	}
 }

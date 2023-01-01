@@ -10,6 +10,7 @@ const requiredKeys = [
 	"MINIO_PORT",
 	"MINIO_FILE_BUCKET",
 	"REDIS_URL",
+	"SHORTNER_FUNCTION",
 ];
 
 requiredKeys.forEach((el) => {
@@ -32,6 +33,7 @@ const config = {
 	redis: {
 		url: process.env.REDIS_URL,
 	},
+	shortnerFunctionUrl: process.env.SHORTNER_FUNCTION,
 };
 
 export default config;

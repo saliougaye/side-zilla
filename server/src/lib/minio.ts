@@ -15,7 +15,7 @@ const createMinioService = (
 		pathStyle: true,
 	});
 
-	const getPresignUrl = async (
+	const getPresignUploadUrl = async (
 		bucket: string,
 		objectPath: string,
 		expiration: number
@@ -29,8 +29,23 @@ const createMinioService = (
 		return result;
 	};
 
+	const getPresignDownloadUrl = async (
+		bucket: string,
+		objectPath: string,
+		expiration: number
+	): Promise<string> => {
+		const result = await client.presignedGetObject(
+			bucket,
+			objectPath,
+			expiration
+		);
+
+		return result;
+	};
+
 	return {
-		getPresignUrl,
+		getPresignUploadUrl,
+		getPresignDownloadUrl,
 	};
 };
 

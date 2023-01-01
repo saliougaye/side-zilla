@@ -3,46 +3,44 @@ package upload
 import (
 	"io"
 
-	"github.com/saliougaye/side-zilla/internal/utils"
+	"github.com/saliougaye/side-zilla/internal/model"
 )
 
 type MockUploadHttpClient struct {
-	PostUploadRequestResponse        *utils.PostResponse
+	PostUploadRequestResponse        *model.UploadResponse
 	ErrPostUploadRequest             error
-	PostAckRequestResponse           *utils.PostResponse
+	PostAckRequestResponse           *model.AckResponse
 	ErrPostAckRequest                error
-	PutFileWithPresignUrlResponse    *utils.PutFileResponse
+	PutFileWithPresignUrlResponse    *model.PutFileResponse
 	ErrPutFileWithPresignUrlResponse error
-	PostAck                          bool
 }
 
 func NewMockUploadHttpClient(
-	postResponse *utils.PostResponse,
+	postResponse *model.UploadResponse,
 	errPostResponse error,
-	postAckRequest *utils.PostResponse,
+	postAckResponse *model.AckResponse,
 	errPostAckRequest error,
-	putFileWithPresignUrlResponse *utils.PutFileResponse,
+	putFileWithPresignUrlResponse *model.PutFileResponse,
 	errPutFileWithPresignUrlResponse error,
-	postAck bool,
-
 ) *MockUploadHttpClient {
 	return &MockUploadHttpClient{
 		PostUploadRequestResponse:        postResponse,
 		ErrPostUploadRequest:             errPostResponse,
-		PostAckRequestResponse:           postAckRequest,
+		PostAckRequestResponse:           postAckResponse,
 		ErrPostAckRequest:                errPostAckRequest,
 		PutFileWithPresignUrlResponse:    putFileWithPresignUrlResponse,
 		ErrPutFileWithPresignUrlResponse: errPutFileWithPresignUrlResponse,
-		PostAck:                          postAck,
 	}
 }
 
-func (m *MockUploadHttpClient) Post(path string, body map[string]interface{}) (*utils.PostResponse, error) {
-	if m.PostAck {
-		return m.PostAckRequestResponse, m.ErrPostAckRequest
-	}
+func (m *MockUploadHttpClient) PostUploadRequest(request model.UploadRequest) (*model.UploadResponse, error) {
 	return m.PostUploadRequestResponse, m.ErrPostUploadRequest
 }
-func (m *MockUploadHttpClient) PutFileWithPresignUrl(url string, body io.Reader) (*utils.PutFileResponse, error) {
+
+func (m *MockUploadHttpClient) PostAckRequest(request model.AckRequest) (*model.AckResponse, error) {
+	return m.PostAckRequestResponse, m.ErrPostAckRequest
+}
+
+func (m *MockUploadHttpClient) PutFileWithPresignUrl(url string, body io.Reader) (*model.PutFileResponse, error) {
 	return m.PutFileWithPresignUrlResponse, m.ErrPutFileWithPresignUrlResponse
 }

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/saliougaye/side-zilla/internal/model"
 )
 
 type HttpClient struct {
@@ -18,10 +20,6 @@ type PostResponse struct {
 	Body       string
 }
 
-type PutFileResponse struct {
-	StatusCode int
-}
-
 func NewHttpClient(baseUrl string) *HttpClient {
 	return &HttpClient{
 		baseUrl: baseUrl,
@@ -31,40 +29,61 @@ func NewHttpClient(baseUrl string) *HttpClient {
 	}
 }
 
-func (c *HttpClient) Post(path string, body map[string]interface{}) (*PostResponse, error) {
-
+func (c *HttpClient) postRequest(url string, body, result interface{}) error {
 	postBody, err := json.Marshal(body)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	rb := bytes.NewBuffer(postBody)
 
-	url := fmt.Sprintf("%s%s", c.baseUrl, path)
-
 	response, err := c.client.Post(url, "application/json", rb)
 
 	if err != nil {
-		return nil, err
+		return err
+	}
+
+	if response.StatusCode >= 400 {
+		return fmt.Errorf("failed to request, returned status code %d", response.StatusCode)
 	}
 
 	defer response.Body.Close()
 
-	responseBody, err := io.ReadAll(response.Body)
+	return json.NewDecoder(response.Body).Decode(&result)
+}
+
+func (c *HttpClient) PostUploadRequest(request model.UploadRequest) (*model.UploadResponse, error) {
+
+	url := fmt.Sprintf("%s%s", c.baseUrl, "/file/upload")
+	var result model.UploadResponse
+
+	err := c.postRequest(url, request, &result)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &PostResponse{
-		StatusCode: response.StatusCode,
-		Body:       string(responseBody),
-	}, nil
+	return &result, nil
 
 }
 
-func (c *HttpClient) PutFileWithPresignUrl(url string, body io.Reader) (*PutFileResponse, error) {
+func (c *HttpClient) PostAckRequest(request model.AckRequest) (*model.AckResponse, error) {
+
+	url := fmt.Sprintf("%s%s", c.baseUrl, "/file/ack")
+	var result model.AckResponse
+
+	err := c.postRequest(url, request, &result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+
+}
+
+func (c *HttpClient) PutFileWithPresignUrl(url string, body io.Reader) (*model.PutFileResponse, error) {
 
 	req, err := http.NewRequest(http.MethodPut, url, body)
 
@@ -78,7 +97,7 @@ func (c *HttpClient) PutFileWithPresignUrl(url string, body io.Reader) (*PutFile
 		return nil, err
 	}
 
-	return &PutFileResponse{
+	return &model.PutFileResponse{
 		StatusCode: response.StatusCode,
 	}, nil
 }
