@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "node build/index.js",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx src/index.ts'",
+    "dev": "nodemon --watch 'src/**/*.ts' --ext ts --exec 'tsx src/index.ts'",
     "build": "tsc -W -p tsconfig.json"
   },
   "keywords": [],
@@ -19,6 +19,11 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "fastify": "^4.10.2"
+    "@types/minio": "^7.0.15",
+    "dotenv": "^16.0.3",
+    "fastify": "^4.10.2",
+    "minio": "^7.0.32",
+    "redis-om": "^0.3.6",
+    "zod": "^3.20.2"
   }
 }

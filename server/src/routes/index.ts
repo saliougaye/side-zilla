@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
-import helloRoute from "./hello";
+import fileRoute from "./files";
 
 export default async (fastify: FastifyInstance) => {
-	fastify.register(helloRoute);
+	fastify.register(fileRoute, { prefix: "/v1/file" });
 };
