@@ -1,3 +1,5 @@
+import { SlugInput, SlugOutput } from "lib/redis/model";
+
 export type CreateUploadController = (deps: {
 	fileStorage: FileStorage;
 	slugStorage: SlugStorage;
@@ -24,8 +26,8 @@ export interface FileStorage {
 }
 
 export interface SlugStorage {
-	createSlug: (url: string, expireAt: number) => Promise<string>;
-	getValue: (slug: string) => Promise<string | undefined>;
+	createSlug: (input: SlugInput) => Promise<string>;
+	getValue: (slug: string) => Promise<SlugOutput | undefined>;
 	setExpiration: (slug: string, expireAt: number) => Promise<void>;
 }
 

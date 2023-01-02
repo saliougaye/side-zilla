@@ -1,18 +1,10 @@
-import { Entity, Schema } from "redis-om";
-import client from "./client";
-
-interface Slug {
+export interface SlugInput {
 	url: string;
+	ext: string;
+	expiresAt: number;
 }
 
-class Slug extends Entity {}
-
-const SlugSchema = new Schema(Slug, {
-	url: {
-		type: "string",
-	},
-});
-
-export const slugRepository = client.fetchRepository(SlugSchema);
-
-await slugRepository.createIndex();
+export interface SlugOutput {
+	url: string;
+	ext: string;
+}
