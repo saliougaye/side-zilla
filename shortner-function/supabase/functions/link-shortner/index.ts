@@ -1,7 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Redis from "https://esm.sh/redis@4.5.1";
+import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
 
 console.log("Link shortner function started");
+
+if (Deno.env.get("ENVIRONMENT") !== "prod") {
+	const env = config({
+		path: "../../.env",
+	});
+	Deno.env.set("REDIS_URL", env["REDIS_URL"]);
+}
 
 const pattern = new URLPattern({ pathname: "/:slug" });
 const redis = await Redis.createClient({
@@ -22,6 +30,7 @@ serve(async (req) => {
 
 	const e = (await redis.json.get(`Slug:${slug}`)) as {
 		url: string;
+		ext: string;
 	};
 
 	await redis.disconnect();
@@ -34,12 +43,51 @@ serve(async (req) => {
 
 	const response = await fetch(e.url);
 
-	return response;
+	return new Response(response.body, {
+		headers: {
+			"Content-Type":
+				response.headers.get("content-type") ?? "binary/octet-stream",
+			"Content-Length": response.headers.get("content-length") ?? "0",
+			"Content-Disposition": `attachment; filename="${slug}${e.ext}"`,
+		},
+	});
 });
 
-// To invoke:
-// curl -i --location --request POST 'http://localhost:54321/functions/v1/' \
-//   --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-//   --header 'Content-Type: application/json' \
-//   --data '{"name":"Functions"}'
-// supabase functions serve send-message --env-file ./supabase/.env
+const startServer = (redis: Redis.RedisClientType) => {
+	return serve(async (req) => {
+		const matchingPath = pattern.exec(req.url);
+		const slug = matchingPath ? matchingPath.pathname.groups.slug : null;
+
+		if (!slug) {
+			return new Response(null, {
+				status: 400,
+			});
+		}
+
+		await redis.connect();
+
+		const e = (await redis.json.get(`Slug:${slug}`)) as {
+			url: string;
+			ext: string;
+		};
+
+		await redis.disconnect();
+
+		if (!e) {
+			return new Response(null, {
+				status: 404,
+			});
+		}
+
+		const response = await fetch(e.url);
+
+		return new Response(response.body, {
+			headers: {
+				"Content-Type":
+					response.headers.get("content-type") ?? "binary/octet-stream",
+				"Content-Length": response.headers.get("content-length") ?? "0",
+				"Content-Disposition": `attachment; filename="${slug}${e.ext}"`,
+			},
+		});
+	});
+};
