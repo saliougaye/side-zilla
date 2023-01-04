@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"mime/multipart"
+	"io"
 	"os"
 
 	"github.com/saliougaye/side-zilla/internal/model"
@@ -100,9 +100,13 @@ func (u *UploadCommand) upload(filepath, url string) error {
 
 	defer file.Close()
 
-	body := &bytes.Buffer{}
+	fileBytes, err := io.ReadAll(file)
 
-	multipart.NewWriter(body)
+	if err != nil {
+		return err
+	}
+
+	body := bytes.NewBuffer(fileBytes)
 
 	result, err := u.client.PutFileWithPresignUrl(url, body)
 

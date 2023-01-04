@@ -1,24 +1,26 @@
-import { slugRepository } from "./model";
+import { SlugInput, SlugOutput } from "./model";
+import { slugRepository } from "./repository";
 
 const createRedisService = () => {
-	const createSlug = async (url: string, expiresAt: number) => {
-		const entity = slugRepository.createEntity({
-			url,
-		});
+	const createSlug = async (input: SlugInput): Promise<string> => {
+		const entity = slugRepository.createEntity();
+		entity.url = input.url;
+		entity.ext = input.ext;
+
 		const slug = await slugRepository.save(entity);
-		await setExpiration(slug, expiresAt);
+		await setExpiration(slug, input.expiresAt);
 
 		return slug;
 	};
 
-	const getValue = async (slug: string): Promise<string | undefined> => {
+	const getValue = async (slug: string): Promise<SlugOutput | undefined> => {
 		const entity = await slugRepository.fetch(slug);
 
-		if (!entity.url) {
+		if (!entity) {
 			return undefined;
 		}
 
-		return entity.url;
+		return entity;
 	};
 
 	const setExpiration = async (slug: string, expiresAt: number) => {

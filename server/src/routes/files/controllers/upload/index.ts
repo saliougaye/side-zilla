@@ -19,17 +19,18 @@ const createUploadController: CreateUploadController = ({
 			`${filename}${path.extname(input.filename)}`,
 			60 * 10 // 10 minutes
 		);
-
+		const ext = path.extname(input.filename);
 		const downloadUrl = await fileStorage.getPresignDownloadUrl(
 			fileBucket,
-			`${filename}${path.extname(input.filename)}`,
+			`${filename}${ext}`,
 			60 * 10 // 10 minutes
 		);
 
-		const slug = await slugStorage.createSlug(
-			downloadUrl,
-			60 * 10 // 10 minutes
-		);
+		const slug = await slugStorage.createSlug({
+			url: downloadUrl,
+			ext,
+			expiresAt: 60 * 10, // 10 minutes
+		});
 
 		return {
 			slug,
