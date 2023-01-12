@@ -8,6 +8,7 @@ import routes from "./routes/index";
 		port: config.port,
 	});
 
+	server.register;
 	server.register(routes);
 
 	start(server);

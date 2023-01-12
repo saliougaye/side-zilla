@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import { User } from "model/user";
 
 declare module "fastify" {
 	interface FastifyInstance {
@@ -6,5 +7,6 @@ declare module "fastify" {
 			port: number;
 			host: string;
 		};
+		user?: User;
 	}
 }
