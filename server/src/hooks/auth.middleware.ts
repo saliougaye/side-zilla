@@ -1,38 +1,38 @@
-import type {
-	FastifyInstance,
-	FastifyRegister,
-	preHandlerHookHandler,
-} from "fastify";
-
+import { FastifyInstance } from "fastify";
+import { AuthService } from "model/model";
+import fp from "fastify-plugin";
 export interface AuthorizationHookConfig {
-	instance: FastifyInstance;
-	authService: {
-		getUserByToken: (token: string) => Promise<unknown | undefined>;
-	};
+	authService: AuthService;
 }
 
-const authorizationHook = (config: AuthorizationHookConfig) => {
-	config.instance.addHook("preHandler", async (req, reply, done) => {
-		const authToken = req.headers.authorization;
+const authPlugin = fp<AuthorizationHookConfig>(async (fastify, opts) => {
+	fastify.decorateRequest("user", undefined);
 
-		if (!authToken) {
-			return reply.code(401).send({
-				message: "invalid token",
+	fastify.addHook("preHandler", async (req, reply) => {
+		try {
+			const authToken = req.headers.authorization;
+
+			if (!authToken) {
+				return reply.code(401).send({
+					message: "invalid token",
+				});
+			}
+
+			const user = await opts.authService.getUserByToken(authToken);
+
+			if (!user) {
+				return reply.code(401).send({
+					message: "invalid token",
+				});
+			}
+
+			req.user = user;
+		} catch (error) {
+			return reply.code(500).send({
+				message: "something wrong happened",
 			});
 		}
-
-		const user = await config.authService.getUserByToken(authToken);
-
-		if (!user) {
-			return reply.code(401).send({
-				message: "invalid token",
-			});
-		}
-
-		config.instance.decorate("user", user);
-
-		done();
 	});
-};
+});
 
-export default authorizationHook;
+export default authPlugin;

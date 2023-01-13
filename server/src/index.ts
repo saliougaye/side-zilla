@@ -1,6 +1,8 @@
 import { init, start } from "./server";
 import config from "./config";
 import routes from "./routes/index";
+import authPlugin from "hooks/auth.middleware";
+import createPocketBaseService from "lib/pocketbase";
 
 (async () => {
 	const server = init({
@@ -8,7 +10,11 @@ import routes from "./routes/index";
 		port: config.port,
 	});
 
-	server.register;
+	server.register(authPlugin, {
+		authService: createPocketBaseService({
+			url: process.env.POCKETBASE_URL,
+		}),
+	});
 	server.register(routes);
 
 	start(server);

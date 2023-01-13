@@ -26,6 +26,13 @@ Plans:
     - Future
       - Crypted
 
+### Tips
+
+To generate pocketbase types run:  
+<code>
+npx pocketbase-typegen --url < url > --email < email > --password '< password >' --out src/generated/pocketbase-types.ts
+</code>
+
 ## Infos
 
 [Redis Stack](https://redis.io/docs/stack/)

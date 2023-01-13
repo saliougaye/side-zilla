@@ -1,10 +1,10 @@
 export type Plan = {
 	id: string;
 	name: string;
-	configuration: PlanConfiguration;
+	configuration: PlanConfiguration | null;
 };
 
-interface PlanConfiguration {
+export interface PlanConfiguration {
 	maxSize: number;
 	maxDailyUpload: number;
 	uploadExpiration: number;
