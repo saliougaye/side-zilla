@@ -9,10 +9,15 @@ import {
 	UsersPlanRecord,
 } from "generated/pocketbase-types";
 import { PlanConfiguration } from "model/plan";
+import { AuthService } from "model/model";
 
 export interface PocketbaseConfig {
 	url: string;
 }
+
+export type PocketbaseServiceBuilder = (
+	config: PocketbaseConfig
+) => AuthService;
 
 type UserPlan = UsersResponse & {
 	expand:
@@ -26,10 +31,10 @@ type UserPlan = UsersResponse & {
 		  };
 };
 
-const createPocketBaseService = (config: PocketbaseConfig) => {
+const createPocketBaseService: PocketbaseServiceBuilder = (config) => {
 	const pb = new Pocketbase(config.url);
 
-	const getUserByToken = async (token: string): Promise<User | undefined> => {
+	const getUserByToken: AuthService["getUserByToken"] = async (token) => {
 		try {
 			// save token
 			await pb.authStore.save(token, null);
