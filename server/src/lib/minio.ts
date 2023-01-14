@@ -1,5 +1,15 @@
 import minio from "minio";
-const createMinioService = (
+import { FileStorage } from "model/model";
+
+type MinioServiceBuilder = (
+	endpoint: string,
+	user: string,
+	password: string,
+	port: number,
+	ssl: boolean
+) => FileStorage;
+
+const createMinioService: MinioServiceBuilder = (
 	endpoint: string,
 	user: string,
 	password: string,
@@ -15,10 +25,10 @@ const createMinioService = (
 		pathStyle: true,
 	});
 
-	const getPresignUploadUrl = async (
-		bucket: string,
-		objectPath: string,
-		expiration: number
+	const getPresignUploadUrl: FileStorage["getPresignUploadUrl"] = async (
+		bucket,
+		objectPath,
+		expiration
 	): Promise<string> => {
 		const result = await client.presignedPutObject(
 			bucket,
@@ -29,11 +39,11 @@ const createMinioService = (
 		return result;
 	};
 
-	const getPresignDownloadUrl = async (
-		bucket: string,
-		objectPath: string,
-		expiration: number
-	): Promise<string> => {
+	const getPresignDownloadUrl: FileStorage["getPresignDownloadUrl"] = async (
+		bucket,
+		objectPath,
+		expiration
+	) => {
 		const result = await client.presignedGetObject(
 			bucket,
 			objectPath,

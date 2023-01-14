@@ -10,5 +10,6 @@ namespace NodeJS {
 		MINIO_FILE_BUCKET: string;
 		REDIS_URL: string;
 		SHORTNER_FUNCTION: string;
+		POCKETBASE_URL: string;
 	}
 }
