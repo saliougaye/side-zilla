@@ -1,6 +1,8 @@
 import { z } from "zod";
+import azs from "azs";
+import { FastifyRequest } from "fastify";
 
-export const UploadRequestSchema = z.object({
+export const uploadRequestValidator = z.object({
 	body: z.object(
 		{
 			size: z
@@ -25,6 +27,12 @@ export const UploadRequestSchema = z.object({
 			invalid_type_error: "require valid body request",
 		}
 	),
+});
+
+export const UploadRequestSchema = azs(uploadRequestValidator, {
+	isSizeValid: (request, maxSize: number) => {
+		return request.body.size <= maxSize;
+	},
 });
 
 export const AckRequestSchema = z.object({

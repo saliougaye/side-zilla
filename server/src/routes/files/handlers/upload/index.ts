@@ -7,7 +7,15 @@ import { AckRequestSchema, UploadRequestSchema } from "./schema";
 const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 	const upload: RouteHandlerMethod = async (req, reply) => {
 		try {
-			const { body } = await validateRequestSchema(req, UploadRequestSchema);
+			const { body, isSizeValid } = await UploadRequestSchema.parseAsync(req);
+
+			const maxSize = req.user.plan.configuration.maxSize;
+
+			if (!isSizeValid(maxSize)) {
+				return reply.code(403).send({
+					message: "file it's bigger than your max size possible. upgrade plan",
+				});
+			}
 
 			const result = await controller.uploadRequest({
 				filename: body.filename,
@@ -19,6 +27,7 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 				uploadUrl: result.url,
 			});
 		} catch (error) {
+			console.log(error);
 			const { statusCode, body } = createErrorResponse(error);
 
 			reply.code(statusCode).send(body);
@@ -31,6 +40,7 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 
 			const result = await controller.ackRequest({
 				slug: body.slug,
+				expiration: req.user.plan.configuration.uploadExpiration,
 			});
 
 			reply.code(200).send({
@@ -38,6 +48,8 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 				expiresAt: result.expireAt,
 			});
 		} catch (error) {
+			console.log(error);
+
 			const { statusCode, body } = createErrorResponse(error);
 
 			reply.code(statusCode).send(body);

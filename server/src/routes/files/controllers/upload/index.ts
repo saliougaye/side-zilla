@@ -10,7 +10,6 @@ const createUploadController: CreateUploadController = ({
 	shortnerFunctionUrl,
 }) => {
 	const uploadRequest: UploadController["uploadRequest"] = async (input) => {
-		// TODO (future) check size valid for user
 		const filename = createRandomString();
 
 		// TODO (future) change path type
@@ -45,14 +44,10 @@ const createUploadController: CreateUploadController = ({
 			throw new Exception("NOT_FOUND", "file not exist");
 		}
 
-		// TODO (future) calculate expiration depens on user
 		const expireAt = new Date();
 		expireAt.setHours(new Date().getHours() + 1);
 
-		await slugStorage.setExpiration(
-			input.slug,
-			(expireAt.getHours() - 1) * 60 * 60
-		);
+		await slugStorage.setExpiration(input.slug, input.expiration * 60 * 60);
 
 		return {
 			url: `${shortnerFunctionUrl}/${input.slug}`,

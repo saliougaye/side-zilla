@@ -4,5 +4,5 @@ export type User = {
 	id: string;
 	name?: string;
 	username: string;
-	plan?: Plan;
+	plan: Plan;
 };

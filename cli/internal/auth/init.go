@@ -2,12 +2,16 @@ package auth
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
+	"github.com/saliougaye/side-zilla/internal/model"
 	"github.com/skratchdot/open-golang/open"
+	"github.com/spf13/viper"
 )
 
 type InitCommand struct {
@@ -18,7 +22,7 @@ func NewInitCommand() *InitCommand {
 }
 
 func (ic *InitCommand) Run() {
-	authUrl := "http://localhost:8090"
+	authUrl := "http://127.0.0.1:8090"
 
 	fmt.Println("Redirect to login....")
 	time.Sleep(1 * time.Second)
@@ -35,12 +39,31 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	token := queryParts["token"][0]
 
-	// TODO save in keychain or securely
-	fmt.Println(token)
+	viper.SetDefault("token", token)
+
+	err := viper.WriteConfig()
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "token not saved: "+err.Error())
+	}
 
 	msg := "<p>Token received</p>"
 
-	fmt.Fprintf(w, msg)
+	io.WriteString(w, msg)
 
-	// TODO add chain to close http server
+	os.Exit(0)
+}
+
+func GetToken() (string, error) {
+
+	token := viper.GetString("token")
+
+	if len(token) == 0 {
+		fmt.Println("please, first do 'sidezilla init'")
+		os.Exit(1)
+
+		return "", model.ErrNotAuthorized
+	}
+
+	return token, nil
 }

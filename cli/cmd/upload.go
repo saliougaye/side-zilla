@@ -35,7 +35,7 @@ var uploadCmd = &cobra.Command{
 		filepath := args[0]
 
 		client := utils.NewHttpClient(internal.UploadBaseUrl)
-		// FIXME check size based on user plan
+
 		command := upload.NewUploadCommand(client, 5242880)
 
 		l, err := command.Run(filepath)
