@@ -1,7 +1,7 @@
 export type Plan = {
 	id: string;
 	name: string;
-	configuration: PlanConfiguration | null;
+	configuration: PlanConfiguration;
 };
 
 export interface PlanConfiguration {

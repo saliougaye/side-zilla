@@ -25,11 +25,12 @@ func NewHttpClient(baseUrl string) *HttpClient {
 		baseUrl: baseUrl,
 		client:  http.Client{
 			// Timeout: time.Duration(time.Duration.Seconds(10)),
+
 		},
 	}
 }
 
-func (c *HttpClient) postRequest(url string, body, result interface{}) error {
+func (c *HttpClient) postRequest(url string, body, result interface{}, headers *map[string]string) error {
 	postBody, err := json.Marshal(body)
 
 	if err != nil {
@@ -38,7 +39,15 @@ func (c *HttpClient) postRequest(url string, body, result interface{}) error {
 
 	rb := bytes.NewBuffer(postBody)
 
-	response, err := c.client.Post(url, "application/json", rb)
+	req, _ := http.NewRequest("POST", url, rb)
+
+	if headers != nil {
+		for k, v := range *headers {
+			req.Header.Set(k, v)
+		}
+	}
+
+	response, err := c.client.Do(req)
 
 	if err != nil {
 		return err
@@ -53,12 +62,15 @@ func (c *HttpClient) postRequest(url string, body, result interface{}) error {
 	return json.NewDecoder(response.Body).Decode(&result)
 }
 
-func (c *HttpClient) PostUploadRequest(request model.UploadRequest) (*model.UploadResponse, error) {
+func (c *HttpClient) PostUploadRequest(request model.UploadRequest, token string) (*model.UploadResponse, error) {
 
 	url := fmt.Sprintf("%s%s", c.baseUrl, "/file/upload")
 	var result model.UploadResponse
 
-	err := c.postRequest(url, request, &result)
+	err := c.postRequest(url, request, &result, &map[string]string{
+		"Content-Type":  "application/json",
+		"authorization": token,
+	})
 
 	if err != nil {
 		return nil, err
@@ -68,12 +80,15 @@ func (c *HttpClient) PostUploadRequest(request model.UploadRequest) (*model.Uplo
 
 }
 
-func (c *HttpClient) PostAckRequest(request model.AckRequest) (*model.AckResponse, error) {
+func (c *HttpClient) PostAckRequest(request model.AckRequest, token string) (*model.AckResponse, error) {
 
 	url := fmt.Sprintf("%s%s", c.baseUrl, "/file/ack")
 	var result model.AckResponse
 
-	err := c.postRequest(url, request, &result)
+	err := c.postRequest(url, request, &result, &map[string]string{
+		"Content-Type":  "application/json",
+		"authorization": token,
+	})
 
 	if err != nil {
 		return nil, err

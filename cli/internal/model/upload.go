@@ -15,6 +15,10 @@ var (
 	ErrFailedToUpload        = errors.New("failed to upload the file (Code 0003)")
 )
 
+type Request struct {
+	token string
+}
+
 type UploadRequest struct {
 	Size     int64  `json:"size"`
 	Filename string `json:"filename"`
@@ -44,7 +48,7 @@ type PutFileResponse struct {
 }
 
 type UploadHttpClient interface {
-	PostUploadRequest(request UploadRequest) (*UploadResponse, error)
-	PostAckRequest(request AckRequest) (*AckResponse, error)
+	PostUploadRequest(request UploadRequest, token string) (*UploadResponse, error)
+	PostAckRequest(request AckRequest, token string) (*AckResponse, error)
 	PutFileWithPresignUrl(url string, body io.Reader) (*PutFileResponse, error)
 }

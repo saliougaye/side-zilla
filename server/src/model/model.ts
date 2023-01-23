@@ -45,6 +45,7 @@ export interface UploadOutput {
 
 export interface AckInput {
 	slug: string;
+	expiration: number;
 }
 
 export interface AckOutput {

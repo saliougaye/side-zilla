@@ -28,6 +28,8 @@ const authPlugin = fp<AuthorizationHookConfig>(async (fastify, opts) => {
 
 			req.user = user;
 		} catch (error) {
+			console.log(error);
+
 			return reply.code(500).send({
 				message: "something wrong happened",
 			});

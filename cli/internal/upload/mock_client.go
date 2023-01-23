@@ -33,11 +33,11 @@ func NewMockUploadHttpClient(
 	}
 }
 
-func (m *MockUploadHttpClient) PostUploadRequest(request model.UploadRequest) (*model.UploadResponse, error) {
+func (m *MockUploadHttpClient) PostUploadRequest(request model.UploadRequest, token string) (*model.UploadResponse, error) {
 	return m.PostUploadRequestResponse, m.ErrPostUploadRequest
 }
 
-func (m *MockUploadHttpClient) PostAckRequest(request model.AckRequest) (*model.AckResponse, error) {
+func (m *MockUploadHttpClient) PostAckRequest(request model.AckRequest, token string) (*model.AckResponse, error) {
 	return m.PostAckRequestResponse, m.ErrPostAckRequest
 }
 

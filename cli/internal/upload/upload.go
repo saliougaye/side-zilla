@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/saliougaye/side-zilla/internal/auth"
 	"github.com/saliougaye/side-zilla/internal/model"
 )
 
@@ -24,6 +25,12 @@ func NewUploadCommand(client model.UploadHttpClient, maxSize int64) *UploadComma
 
 func (u *UploadCommand) Run(filepath string) (*model.UploadResult, error) {
 
+	token, err := auth.GetToken()
+
+	if err != nil {
+		return nil, model.ErrNotAuthorized
+	}
+
 	fileInfo, err := os.Stat(filepath)
 
 	if err != nil {
@@ -38,7 +45,7 @@ func (u *UploadCommand) Run(filepath string) (*model.UploadResult, error) {
 		return nil, model.ErrSizeExceed
 	}
 
-	uploadResponse, err := u.getPresignUrl(fileInfo.Size(), fileInfo.Name())
+	uploadResponse, err := u.getPresignUrl(fileInfo.Size(), fileInfo.Name(), token)
 
 	if err != nil {
 		return nil, model.ErrFailedToRequestUpload
@@ -51,7 +58,7 @@ func (u *UploadCommand) Run(filepath string) (*model.UploadResult, error) {
 		return nil, model.ErrFailedToUpload
 	}
 
-	ackResponse, err := u.ackRequest(uploadResponse.Id)
+	ackResponse, err := u.ackRequest(uploadResponse.Id, token)
 
 	if err != nil {
 		return nil, model.ErrFailedToRequestAck
@@ -63,12 +70,12 @@ func (u *UploadCommand) Run(filepath string) (*model.UploadResult, error) {
 	}, nil
 }
 
-func (u *UploadCommand) getPresignUrl(size int64, filename string) (*model.UploadResponse, error) {
+func (u *UploadCommand) getPresignUrl(size int64, filename, token string) (*model.UploadResponse, error) {
 
 	resp, err := u.client.PostUploadRequest(model.UploadRequest{
 		Size:     size,
 		Filename: filename,
-	})
+	}, token)
 
 	if err != nil {
 		return nil, err
@@ -78,10 +85,10 @@ func (u *UploadCommand) getPresignUrl(size int64, filename string) (*model.Uploa
 
 }
 
-func (u *UploadCommand) ackRequest(id string) (*model.AckResponse, error) {
+func (u *UploadCommand) ackRequest(id, token string) (*model.AckResponse, error) {
 	resp, err := u.client.PostAckRequest(model.AckRequest{
 		Id: id,
-	})
+	}, token)
 
 	if err != nil {
 		return nil, err

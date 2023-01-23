@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/saliougaye/side-zilla/internal/auth"
 	"github.com/spf13/cobra"
 )
 
@@ -14,10 +15,9 @@ var initCmd = &cobra.Command{
 	Short: "Init sidezilla cli",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
+		command := auth.NewInitCommand()
 
-		// TODO login and/or refresh token
-
-		// TODO save in keychain or securely
+		command.Run()
 
 	},
 }
