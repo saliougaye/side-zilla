@@ -26,7 +26,9 @@ services:
       /bin/sh -c "
         /usr/bin/mc alias set --api "s3v2" sidezilla-storage http://minio:12000 root password;
         /usr/bin/mc mb sidezilla-storage/file-storage;
+        /usr/bin/mc mb sidezilla-storage/temp-file-storage;
         /usr/bin/mc policy set public sidezilla-storage/file-storage;
+        /usr/bin/mc policy set public sidezilla-storage/temp-file-storage;
         exit 0;
       "
 

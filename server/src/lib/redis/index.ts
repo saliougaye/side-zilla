@@ -6,7 +6,7 @@ export type RedisServiceBuilder = () => SlugStorage;
 const createRedisService: RedisServiceBuilder = () => {
 	const createSlug: SlugStorage["createSlug"] = async (input) => {
 		const entity = slugRepository.createEntity();
-		entity.url = input.url;
+		entity.filename = input.filename;
 		entity.ext = input.ext;
 
 		const slug = await slugRepository.save(entity);

@@ -15,6 +15,12 @@ export interface FileStorage {
 		objectPath: string,
 		expiration: number
 	) => Promise<string>;
+	moveFile: (
+		destinationBucket: string,
+		objectPath: string,
+		sourcePath: string,
+		expireAt: Date
+	) => Promise<void>;
 }
 
 export interface SlugStorage {
@@ -23,19 +29,20 @@ export interface SlugStorage {
 	setExpiration: (slug: string, expireAt: number) => Promise<void>;
 }
 export interface SlugInput {
-	url: string;
+	filename: string;
 	ext: string;
 	expiresAt: number;
 }
 
 export interface SlugOutput {
-	url: string;
+	filename: string;
 	ext: string;
 }
 
 export interface UploadInput {
 	size: number;
 	filename: string;
+	userId: string;
 }
 
 export interface UploadOutput {
@@ -44,6 +51,7 @@ export interface UploadOutput {
 }
 
 export interface AckInput {
+	userId: string;
 	slug: string;
 	expiration: number;
 }

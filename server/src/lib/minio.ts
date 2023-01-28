@@ -53,9 +53,28 @@ const createMinioService: MinioServiceBuilder = (
 		return result;
 	};
 
+	const moveFile: FileStorage["moveFile"] = async (
+		destinationBucket,
+		objectPath,
+		sourcePath,
+		expireAt
+	) => {
+		await client.copyObject(
+			destinationBucket,
+			objectPath,
+			sourcePath,
+			new minio.CopyConditions()
+		);
+
+		await client.setObjectTagging(destinationBucket, objectPath, {
+			expireAt: expireAt.toISOString(),
+		});
+	};
+
 	return {
 		getPresignUploadUrl,
 		getPresignDownloadUrl,
+		moveFile,
 	};
 };
 

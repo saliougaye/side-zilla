@@ -2,14 +2,14 @@ import { Entity, Schema } from "redis-om";
 import client from "./client";
 
 interface Slug {
-	url: string;
+	filename: string;
 	ext: string;
 }
 
 class Slug extends Entity {}
 
 const SlugSchema = new Schema(Slug, {
-	url: {
+	filename: {
 		type: "string",
 	},
 	ext: {

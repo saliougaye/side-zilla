@@ -11,6 +11,7 @@ export type CreateUploadController = (deps: {
 	fileStorage: FileStorage;
 	slugStorage: SlugStorage;
 	fileBucket: string;
+	tempFileBucket: string;
 	shortnerFunctionUrl: string;
 }) => UploadController;
 

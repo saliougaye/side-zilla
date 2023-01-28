@@ -20,6 +20,7 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 			const result = await controller.uploadRequest({
 				filename: body.filename,
 				size: body.size,
+				userId: req.user.id,
 			});
 
 			reply.code(200).send({
@@ -41,6 +42,7 @@ const createUploadHandler = ({ controller }: CreateUploadHandlerDeps) => {
 			const result = await controller.ackRequest({
 				slug: body.slug,
 				expiration: req.user.plan.configuration.uploadExpiration,
+				userId: req.user.id,
 			});
 
 			reply.code(200).send({
